@@ -76,6 +76,11 @@ class Reader(RiWo):
         return locals()
     limit = property(**limit())
 
+    # list<str>
+    @property
+    def fieldnames(self):
+        return [ field.name for field in self.reader.get_fields() ]
+
     # Reader
     def __iter__(self):
         return self
@@ -100,6 +105,7 @@ class Writer(RiWo):
                 .format(self=self.name))
 
         self.reader = self.init_reader()
+        self.writer = self.init_writer()
 
     # dp.SchemaFlow
     @property
@@ -124,6 +130,15 @@ class Writer(RiWo):
             return self.iterable_data
 
         return self.output_schema(self.iterable_data)
+
+    # object
+    def init_writer(self):
+        pass
+
+    # list<str>
+    @property
+    def fieldnames(self):
+        return self.reader.fieldnames
 
     # list<dict>
     def read(self):
