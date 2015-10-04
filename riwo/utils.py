@@ -19,3 +19,12 @@ def get_content(resource):
         return resource.read()
 
     raise AttributeError('Unable to read the resource! Pleade define `read` function.')
+
+# type
+def unmarshal(data, unmarshal_item_fn):
+    if isinstance(data, list):
+        return [ unmarshal(item, unmarshal_item_fn) for item in data ]
+    elif isinstance(data, dict):
+        return { unmarshal(k, unmarshal_item_fn) : unmarshal(item, unmarshal_item_fn) for k,item in data.items() }
+    else:
+        return unmarshal_item_fn(data)

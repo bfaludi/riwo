@@ -32,7 +32,7 @@ class Reader(RiWo):
 
     # function
     def get_mapper(self):
-        return daprot.mapper.IGNORE
+        return dp.mapper.IGNORE
 
     # Iterable
     def get_iterable_data(self):

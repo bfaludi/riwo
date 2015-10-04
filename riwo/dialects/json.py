@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import os
 import dm
 import json
+import datetime
 import daprot.mapper
 from .. import (
     Reader as AbstractReader,
@@ -36,11 +37,17 @@ class Writer(AbstractWriter):
         self.pretty_print = pretty_print
         super(Writer, self).__init__(resource, iterable_data, schema, not_convert)
 
+    def unmarshal_item(self, item):
+        if isinstance(item, (datetime.date, datetime.datetime)):
+            return item.isoformat()
+        return item
+
     # void
     def write(self):
         data = self.read() \
             if not self.root \
             else { self.root:self.read() }
+        unmarshaled_data = unmarshal(data, self.unmarshal_item)
 
-        json_data = json.dumps(data, ensure_ascii=False, **(self.PP_PARAMS if self.pretty_print else {}))
+        json_data = json.dumps(unmarshaled_data, ensure_ascii=False, **(self.PP_PARAMS if self.pretty_print else {}))
         self.resource.write(decode(json_data, self.encoding))
