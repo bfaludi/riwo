@@ -21,6 +21,7 @@ class Reader(AbstractReader):
             for r in to_iterable(self.resource) ) # json package can't open bytestream
 
 class Writer(AbstractWriter):
+    # type
     def unmarshal_item(self, item):
         if isinstance(item, (datetime.date, datetime.datetime)):
             return item.isoformat()

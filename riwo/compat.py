@@ -21,7 +21,14 @@ else:
     binary_type = str
     long = long
 
+# str in PY3 & unicode in PY2
 def decode(text, encoding):
     if isinstance(text, binary_type):
         return text.decode(encoding)
+    return text
+
+# bytes in PY3 & str in PY2
+def encode(text, encoding):
+    if not isinstance(text, binary_type):
+        return text.encode(encoding)
     return text

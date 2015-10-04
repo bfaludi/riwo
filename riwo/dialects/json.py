@@ -37,6 +37,7 @@ class Writer(AbstractWriter):
         self.pretty_print = pretty_print
         super(Writer, self).__init__(resource, iterable_data, schema, not_convert)
 
+    # type
     def unmarshal_item(self, item):
         if isinstance(item, (datetime.date, datetime.datetime)):
             return item.isoformat()
