@@ -79,7 +79,7 @@ class Reader(RiWo):
     # list<str>
     @property
     def fieldnames(self):
-        return [ field.name for field in self.reader.get_fields() ]
+        return self.reader.fieldnames
 
     # Reader
     def __iter__(self):
@@ -138,7 +138,15 @@ class Writer(RiWo):
     # list<str>
     @property
     def fieldnames(self):
-        return self.reader.fieldnames
+        if hasattr(self, '_fieldnames'):
+            return self._fieldnames
+
+        if not isinstance(self.reader, (dp.SchemaFlow, Reader)) and self.not_convert:
+            self._fieldnames = self.output_schema([]).fieldnames
+        else:
+            self._fieldnames = self.reader.fieldnames
+
+        return self._fieldnames
 
     # list<dict>
     def read_items(self):
