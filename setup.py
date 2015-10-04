@@ -16,6 +16,7 @@ setup(
     install_requires = [
         'dm',
         'daprot',
+        'xmlsquash',
         'pip'
     ],
     test_suite = "riwo.tests",

@@ -3,4 +3,5 @@ from . import (
     fwt,
     json,
     onelinejson,
+    xml,
 )

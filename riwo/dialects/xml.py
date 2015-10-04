@@ -1,0 +1,60 @@
+from __future__ import absolute_import
+import os
+import dm
+import datetime
+import xmlsquash
+import daprot.mapper
+from .. import (
+    Reader as AbstractReader,
+    Writer as AbstractWriter
+)
+from ..compat import *
+from ..utils import *
+from xml.etree import ElementTree
+from xml.dom import minidom
+
+class Reader(AbstractReader):
+    # void
+    def __init__(self, resource, schema, offset=0, limit=None, route=None):
+        self.route = os.path.join(route or u'', u'!')
+        super(Reader, self).__init__(resource, schema, offset, limit)
+
+    # Iterable
+    def get_iterable_data(self):
+        # WARNING: It will contains the whole dataset in memory.
+        data = xmlsquash.XML2Dict().parseFile(self.resource)
+        return dm.Mapper(data, routes = {'root': self.route}).root or []
+
+class Writer(AbstractWriter):
+    # void
+    def __init__(self, resource, iterable_data, item_name, schema=None, not_convert=False, root='root'):
+        self.root = root
+        self.item_name = item_name
+        super(Writer, self).__init__(resource, iterable_data, schema, not_convert)
+
+    # type
+    def unmarshal_item(self, item):
+        if isinstance(item, (datetime.date, datetime.datetime)):
+            return item.isoformat()
+        return unicode(item or u'')
+
+    # unicode
+    def prettify(self):
+        raw_string = ElementTree.tostring(self.tree, self.encoding)
+        reparsed = minidom.parseString(raw_string)
+        xml_string = reparsed.toprettyxml(indent = 2*u' ')
+        return xml_string
+
+    # void
+    def write(self):
+        self.tree = ElementTree.Element(self.root)
+        super(Writer, self).write()
+        self.resource.write(self.prettify())
+
+    # void
+    def write_item(self, item):
+        tree_element = ElementTree.SubElement(self.tree, self.item_name)
+        unmarshaled_item = unmarshal(item, self.unmarshal_item)
+        for name in self.fieldnames:
+            sub_element = ElementTree.SubElement(tree_element, name)
+            sub_element.text = unmarshaled_item[name]
