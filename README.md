@@ -2,7 +2,7 @@
 
 **UNDER DEVELOPMENT!**
 
-Please help me to finish this package as soon as humanly possible. Ping me in twitter [@bfaludi](http://twitter.com/bfaludi) if you want to help. :)
+Please help me to finish this package as soon as humanly possible. Ping me in twitter ([@bfaludi](http://twitter.com/bfaludi)) if you want to help. :)
 
 ## Overview
 
@@ -28,7 +28,19 @@ Important dependencies you should know about:
 
 ## Quick tutorial
 
-### 1. Load a fixed width text file and write out a JSON file.
+### 1. Read a fixed width text file and write out a JSON file.
+
+We have a fixed width text file and It contains product informations. (e.g.: id, name, formatted price in HUF, quantity, last updated date).
+
+```
+P0001   Tomato           449      1     2015.09.20 20:00
+P0002   Paprika          399      1     2015.09.20 20:02
+P0003      Cucumber      199      10
+P0004   Chicken nuggets  999,5    1     2015.09.20 12:47
+P0005   Chardonnay       2 399    1     2015.09.20 07:31
+```
+
+We want to convert it into JSON.
 
 ```python
 import io
