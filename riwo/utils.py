@@ -1,3 +1,5 @@
+from collections import Iterable
+
 # Iterable
 def to_iterable(resource):
     if isinstance(resource, Iterable):

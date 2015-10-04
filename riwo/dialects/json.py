@@ -13,7 +13,7 @@ from ..utils import *
 class Reader(AbstractReader):
     # void
     def __init__(self, resource, schema, offset=0, limit=None, route=None):
-        self.route = os.path.join(route or '', '!')
+        self.route = os.path.join(route or u'', u'!')
         super(Reader, self).__init__(resource, schema, offset, limit)
 
     # function

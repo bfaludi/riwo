@@ -1,7 +1,6 @@
 import imp
 import pip
 import daprot as dp
-from collections import Iterable
 from . import exceptions
 
 class RiWo(object):
