@@ -56,5 +56,24 @@ class Writer(AbstractWriter):
         tree_element = ElementTree.SubElement(self.tree, self.item_name)
         unmarshaled_item = unmarshal(item, self.unmarshal_item)
         for name in self.fieldnames:
-            sub_element = ElementTree.SubElement(tree_element, name)
-            sub_element.text = unmarshaled_item[name]
+            self.add_item(tree_element, name, unmarshaled_item[name])
+
+    # void
+    def add_item(self, parent_element, name, value):
+        if isinstance(value, list):
+            self.add_list(parent_element, name, value)
+        elif isinstance(value, dict):
+            self.add_dict(parent_element, name, value)
+        else:
+            element = ElementTree.SubElement(parent_element, name)
+            element.text = value
+
+    # void
+    def add_list(self, parent_element, name, values):
+        for value in values:
+            self.add_item(parent_element, name, value)
+
+    def add_dict(self, parent_element, name, value):
+        element = ElementTree.SubElement(parent_element, name)
+        for i_name, i_value in value.items():
+            self.add_item(element, i_name, i_value)
