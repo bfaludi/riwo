@@ -50,10 +50,9 @@ class Writer(AbstractWriter):
 
         for item in items:
             self.write_item(item, length)
+            self.resource.write(u'\n')
 
     # void
     def write_item(self, item, length):
-        line = u''
         for name in self.fieldnames:
-            line += item[name].ljust(length[name]+1)
-        self.resource.write(line + '\n')
+            self.resource.write(decode(item[name], self.encoding).ljust(length[name]+1))
