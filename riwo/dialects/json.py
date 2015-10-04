@@ -44,9 +44,9 @@ class Writer(AbstractWriter):
 
     # void
     def write(self):
-        data = self.read() \
+        data = self.read_items() \
             if not self.root \
-            else { self.root:self.read() }
+            else { self.root:self.read_items() }
         unmarshaled_data = unmarshal(data, self.unmarshal_item)
 
         json_data = json.dumps(unmarshaled_data, ensure_ascii=False, **(self.PP_PARAMS if self.pretty_print else {}))

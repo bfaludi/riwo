@@ -47,12 +47,13 @@ class Writer(AbstractWriter):
     def init_writer(self):
         return csv.DictWriter(self.resource, fieldnames=self.fieldnames, **self.fmtparams)
 
+    # str in PY3 and unicode in PY2
     def unmarshal_item(self, item):
         if isinstance(item, (datetime.date, datetime.datetime)):
             return item.isoformat()
 
-        # Convert string to every item.
-        return unicode(item)
+        # Convert to string.
+        return unicode(item or u'')
 
     # void
     def write(self):

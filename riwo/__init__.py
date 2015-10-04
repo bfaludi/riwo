@@ -141,7 +141,7 @@ class Writer(RiWo):
         return self.reader.fieldnames
 
     # list<dict>
-    def read(self):
+    def read_items(self):
         return list(self.reader)
 
     # void
