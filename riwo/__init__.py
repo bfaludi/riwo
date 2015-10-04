@@ -81,6 +81,10 @@ class Reader(RiWo):
     def fieldnames(self):
         return self.reader.fieldnames
 
+    # bool
+    def is_nested(self):
+        return self.reader.is_nested()
+
     # Reader
     def __iter__(self):
         return self
@@ -147,6 +151,13 @@ class Writer(RiWo):
             self._fieldnames = self.reader.fieldnames
 
         return self._fieldnames
+
+    # bool
+    def is_nested(self):
+        if not isinstance(self.reader, (dp.SchemaFlow, Reader)) and self.not_convert:
+            return self.output_schema([]).is_nested()
+
+        return self.reader.is_nested()
 
     # list<dict>
     def read_items(self):

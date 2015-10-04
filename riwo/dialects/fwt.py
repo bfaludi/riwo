@@ -1,6 +1,7 @@
 from .. import (
     Reader as AbstractReader,
-    Writer as AbstractWriter
+    Writer as AbstractWriter,
+    exceptions,
 )
 from ..utils import *
 from ..compat import *
@@ -15,6 +16,10 @@ class Writer(AbstractWriter):
     def __init__(self, resource, iterable_data, schema=None, not_convert=False, add_header=True):
         self.add_header = add_header
         super(Writer, self).__init__(resource, iterable_data, schema, not_convert)
+
+        if self.is_nested():
+            raise exceptions.NestedSchemaNotSupported("{self} is not support nested schemas." \
+                .format(self=self.name))
 
     # str in PY3 and unicode in PY2
     def unmarshal_item(self, item):
