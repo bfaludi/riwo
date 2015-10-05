@@ -17,7 +17,8 @@ setup(
         'dm',
         'daprot',
         'xmlsquash',
-        'pip'
+        'sqlalchemy',
+        'pip',
     ],
     test_suite = "riwo.tests",
     url = 'http://bfaludi.com'

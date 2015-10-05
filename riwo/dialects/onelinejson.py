@@ -1,7 +1,6 @@
 from __future__ import absolute_import
-import os
-import dm
 import json
+import datetime
 import daprot.mapper
 from .. import (
     Reader as AbstractReader,
