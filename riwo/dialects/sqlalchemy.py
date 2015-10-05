@@ -80,13 +80,21 @@ class Writer(AbstractWriter):
             raise AttributeError("{self}.create(table, replace=False) function's `table` attribute mush be Table object." \
                 .format(self=self.name))
 
+        # Set up missing variables.
+        if not self.table: self.table = table.name
+        if not self.db_schema: self.db_schema = table.schema
+
+        # Recalibrate writer.
+        self.writer = self.init_writer()
+
+        # Remove table if replace is required.
         if self.writer is not None and replace:
             self.writer.drop(checkfirst=False)
+
         elif self.writer is not None:
             return self
 
         table.create(self.resource.engine)
-        self.table = table.name
         self.writer = self.init_writer()
         return self
 
