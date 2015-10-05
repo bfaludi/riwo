@@ -1,10 +1,12 @@
 from __future__ import absolute_import
 import daprot.mapper
 import sqlalchemy.engine.base
+import sqlalchemy.exc
 from sqlalchemy import *
 from .. import (
     Reader as AbstractReader,
-    Writer as AbstractWriter
+    Writer as AbstractWriter,
+    exceptions
 )
 
 class Reader(AbstractReader):
@@ -42,3 +44,77 @@ class Reader(AbstractReader):
     # Iterable
     def get_iterable_data(self):
         return ( dict(result_proxy_item) for result_proxy_item in self.resource.execute(self.statement) )
+
+class Writer(AbstractWriter):
+    # void
+    def __init__(self, connection, iterable_data, schema=None, not_convert=False, db_schema=None, table=None):
+        self.db_schema = db_schema
+        self.table = table
+
+        if not isinstance(connection, sqlalchemy.engine.base.Connection):
+            raise AttributeError('`connection` has to be sqlalchemy.engine.base.Connection object in {self}.' \
+                .format(self=self.name))
+
+        self.metadata = MetaData()
+        self.metadata.bind = connection
+
+        super(Writer, self).__init__(connection, iterable_data, schema, not_convert)
+
+        if self.is_nested():
+            raise exceptions.NestedSchemaNotSupported("{self} is not support nested schemas." \
+                .format(self=self.name))
+
+    # object
+    def init_writer(self):
+        if not self.table:
+            return
+
+        try:
+            return Table(self.table, self.metadata, autoload=True, autoload_with=self.resource.engine, schema=self.db_schema)
+        except sqlalchemy.exc.NoSuchTableError as e:
+            pass
+
+    # void
+    def create(self, table, replace=False):
+        if not isinstance(table, Table):
+            raise AttributeError("{self}.create(table, replace=False) function's `table` attribute mush be Table object." \
+                .format(self=self.name))
+
+        if self.writer is not None and replace:
+            self.writer.drop(checkfirst=False)
+        elif self.writer is not None:
+            return self
+
+        table.create(self.resource.engine)
+        self.table = table.name
+        self.writer = self.init_writer()
+        return self
+
+    # void
+    def truncate(self):
+        if self.writer is None:
+            return self
+
+        self.writer.delete().execute()
+        return self
+
+    # void
+    def write(self, buffer_size=None):
+        if not buffer_size:
+            # WARNING: It will contains the whole dataset in memory.
+            self.resource.execute(self.writer.insert(), list(self.reader))
+            return
+
+        self.buffer = []
+        self.buffer_size = int(buffer_size)
+        super(Writer, self).write()
+        if self.buffer:
+            self.resource.execute(self.writer.insert(), self.buffer)
+
+    # void
+    def write_item(self, item):
+        if len(self.buffer) >= self.buffer_size:
+            self.resource.execute(self.writer.insert(), self.buffer)
+            self.buffer = []
+
+        self.buffer.append(item)
