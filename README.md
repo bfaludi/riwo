@@ -85,8 +85,10 @@ class Tokens(dp.SchemaFlow):
 with uniopen.Open('postgresql://user:pass@localhost:5432/dbname') as db, \
      uniopen.Open('redshift://user:pass@host:port/dbname') as dwh:
 
-    reader = riwo.sqlalchemy.Reader(db, Tokens, statement=\
-        "SELECT * FROM tokens WHERE updated_at::date >= CURRENT_DATE - interval '3 days'")
+    reader = riwo.sqlalchemy.Reader(db, Tokens, statement="""
+        SELECT * 
+        FROM tokens 
+        WHERE updated_at::date >= CURRENT_DATE - interval '3 days';""")
     writer = riwo.sqlalchemy.Writer(dwh, reader, table='tokens', db_schema="temp") \
         .create(Table("tokens", MetaData(),
             Column('id', Integer, primary_key=True),
@@ -95,10 +97,15 @@ with uniopen.Open('postgresql://user:pass@localhost:5432/dbname') as db, \
             Column('access_token', Unicode(255)),
             Column('expire_date', Date()),
             Column('created_at', Date()),
-            schema="temp")) \ # create it if not exists
-        .truncate() \ # truncate it if the table exists
+            schema="temp")) \
+        .truncate() \
         .write(buffer_size=10000) # write 10k record at the same time 
-    dwh.execute("INSERT INTO public.tokens (SELECT * FROM temp.tokens WHERE id NOT IN (SELECT id FROM public.tokens));")
+    dwh.execute("""
+        INSERT INTO public.tokens (
+          SELECT * 
+          FROM temp.tokens 
+          WHERE id NOT IN (SELECT id FROM public.tokens)
+        );""")
 ```
 
 ## License
