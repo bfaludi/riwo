@@ -89,7 +89,7 @@ with uniopen.Open('postgresql://user:pass@localhost:5432/dbname') as db, \
         SELECT * 
         FROM tokens 
         WHERE created_at::date >= CURRENT_DATE - interval '3 days';""")
-    writer = riwo.sqlalchemy.Writer(dwh, reader, table='tokens', db_schema="temp") \
+    writer = riwo.sqlalchemy.Writer(dwh, reader) \
         .create(Table("tokens", MetaData(),
             Column('id', Integer, primary_key=True),
             Column('application_id', Integer),
