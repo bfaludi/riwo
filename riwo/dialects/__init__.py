@@ -4,4 +4,5 @@ from . import (
     json,
     onelinejson,
     xml,
+    yaml,
 )
