@@ -1,4 +1,4 @@
-# riwo (read input & write output)
+# riwo (read input & write output) [![Build Status](https://travis-ci.org/bfaludi/daprot.svg)](https://travis-ci.org/bfaludi/riwo)
 
 **UNDER DEVELOPMENT!**
 
