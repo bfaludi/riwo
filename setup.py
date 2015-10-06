@@ -19,6 +19,7 @@ setup(
         'xmlsquash',
         'sqlalchemy',
         'pip',
+        'pyyaml',
     ],
     test_suite = "riwo.tests",
     url = 'http://bfaludi.com'

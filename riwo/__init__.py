@@ -104,12 +104,16 @@ class Writer(RiWo):
         self.schema = schema
         self.not_convert = not_convert
 
-        if not self.output_schema:
-            raise exceptions.SchemaRequired('No schema was defined for {self}' \
-                .format(self=self.name))
+        self.prerequisite()
 
         self.reader = self.init_reader()
         self.writer = self.init_writer()
+
+    # void
+    def prerequisite(self):
+        if not self.output_schema:
+            raise exceptions.SchemaRequired('No schema was defined for {self}' \
+                .format(self=self.name))
 
     # dp.SchemaFlow
     @property
