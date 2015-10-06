@@ -5,4 +5,5 @@ from . import (
     onelinejson,
     xml,
     yaml,
+    sqlalchemy,
 )

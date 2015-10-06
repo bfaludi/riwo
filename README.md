@@ -65,6 +65,78 @@ with io.open('input.txt', 'r', encoding='utf-8') as inp, \
 
 More examples are coming soon...
 
+### 2. Move data between databases incrementally.
+
+```python
+import riwo
+import daprot as dp
+import uniopen
+import forcedtypes as t
+from sqlalchemy import *
+
+def check_is_test_user(value):
+    return value.endswith('@example.com')
+
+class Tokens(dp.SchemaFlow):
+    id = dp.Field('token_id')
+    application_id = dp.Field('app_id')
+    people_id = dp.Field('user_id', type=int)
+    access_token = dp.Field(type=t.Str) # you want to convert '' to None.
+    is_test = dp.Field('email', transforms=check_is_test_user)
+    expire_date = dp.Field()
+    created_at = dp.Field()
+
+with uniopen.Open('postgresql://user:pass@localhost:5432/dbname') as db, \
+     uniopen.Open('redshift://user:pass@host:port/dbname') as dwh:
+
+    reader = riwo.sqlalchemy.Reader(db, Tokens, statement="""
+        SELECT * FROM tokens 
+        WHERE created_at::date >= CURRENT_DATE - interval '3 days';""")
+    writer = riwo.sqlalchemy.Writer(dwh, reader) \
+        .create(Table("tokens", MetaData(),
+            Column('id', Integer, primary_key=True),
+            Column('application_id', Integer),
+            Column('people_id', Integer),
+            Column('access_token', Unicode(255)),
+            Column('is_test', Boolean),
+            Column('expire_date', Date()),
+            Column('created_at', Date()),
+            schema="temp")) \
+        .truncate() \
+        .write(buffer_size=10000) # write 10k record at the same time 
+    dwh.execute("""
+        INSERT INTO public.tokens (
+          SELECT * 
+          FROM temp.tokens 
+          WHERE id NOT IN (SELECT id FROM public.tokens)
+        );""")
+```
+
+or if you don't want to do any magic in the `Reader` part, you can write it much shorter and It will still work.
+
+```python
+import riwo
+import daprot as dp
+import uniopen
+from sqlalchemy import *
+
+with uniopen.Open('postgresql://user:pass@localhost:5432/dbname') as db, \
+     uniopen.Open('redshift://user:pass@host:port/dbname') as dwh:
+
+    iterable = db.execute("""SELECT * FROM tokens;""")
+    writer = riwo.sqlalchemy.Writer(dwh, iterable) \
+        .create(Table("tokens", MetaData(),
+            Column('id', Integer, primary_key=True),
+            Column('application_id', Integer),
+            Column('people_id', Integer),
+            Column('access_token', Unicode(255)),
+            Column('expire_date', Date()),
+            Column('created_at', Date()),
+            schema="temp")) \
+        .truncate() \
+        .write(buffer_size=10000) # write 10k record at the same time 
+```
+
 ## License
 
 Copyright © 2015 Bence Faludi.
