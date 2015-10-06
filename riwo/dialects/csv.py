@@ -15,6 +15,11 @@ from csv import (
     QUOTE_NONE
 )
 
+if PY3:
+    code=decode
+else:
+    code=encode
+
 # TODO: Python 2.7 compatibility is missing. (encoding is failing)
 
 class Reader(AbstractReader):
@@ -32,7 +37,7 @@ class Reader(AbstractReader):
 
     # Iterable (csv.reader or csv.DictReader)
     def get_iterable_data(self):
-        resource_gen = (decode(r, self.encoding) for r in to_iterable(self.resource)) # csv package can't open bytestream
+        resource_gen = (code(r, self.encoding) for r in to_iterable(self.resource)) # csv package can't open bytestream
         return csv.reader(resource_gen, **self.fmtparams) \
             if not self.use_header \
             else csv.DictReader(resource_gen, **self.fmtparams)
@@ -42,6 +47,7 @@ class Writer(AbstractWriter):
     def __init__(self, resource, iterable_data, schema=None, not_convert=False, add_header=True, **fmtparams):
         self.fmtparams = fmtparams
         self.add_header = add_header
+        self.resource = resource
         super(Writer, self).__init__(resource, iterable_data, schema, not_convert)
 
         if self.is_nested():
@@ -50,7 +56,11 @@ class Writer(AbstractWriter):
 
     # csv.writer
     def init_writer(self):
-        return csv.DictWriter(self.resource, fieldnames=self.fieldnames, **self.fmtparams)
+
+        self.queue = StringIO()
+        self.stream = self.resource
+
+        return csv.writer(self.queue, **self.fmtparams)
 
     # str in PY3 and unicode in PY2
     def unmarshal_item(self, item):
@@ -58,13 +68,30 @@ class Writer(AbstractWriter):
             return item.isoformat()
 
         # Convert to string.
-        return unicode(item or u'')
+        return str(item or '')
 
     # void
     def write(self):
-        if self.add_header: self.writer.writeheader()
+        if self.add_header: self.write_header()
         super(Writer, self).write()
 
     # void
+    def write_header(self):
+        self.write_row([code(f, self.encoding) for f in self.fieldnames])
+
+    # void
+    def write_row(self, row):
+        self.writer.writerow(row)
+
+        data = self.queue.getvalue()
+        data = decode(data, self.encoding)
+
+        self.stream.write(data)
+        self.queue.truncate(0)
+
+    # void
     def write_item(self, item):
-        self.writer.writerow(unmarshal(item, self.unmarshal_item))
+
+        data = unmarshal(item, self.unmarshal_item)
+        self.write_row([code(data.get(f, u''), self.encoding) for f in self.fieldnames])
+

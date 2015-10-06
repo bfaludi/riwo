@@ -170,7 +170,7 @@ class Writer(RiWo):
 
     # void
     def write_item(self, item):
-        raise extension.NotImplemented("{self}'s `write_item(item)` function is not implemented yet!" \
+        raise exceptions.NotImplemented("{self}'s `write_item(item)` function is not implemented yet!" \
             .format(self=self.name))
 
 from .dialects import *

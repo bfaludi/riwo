@@ -13,6 +13,9 @@ if PY3: # pragma: no cover
     long = int
     unicode = str
 
+    import io
+    StringIO=io.StringIO
+
 else:
     string_types = basestring,
     integer_types = (int, long)
@@ -20,6 +23,9 @@ else:
     text_type = unicode
     binary_type = str
     long = long
+
+    import cStringIO
+    StringIO=cStringIO.StringIO
 
 # str in PY3 & unicode in PY2
 def decode(text, encoding):
