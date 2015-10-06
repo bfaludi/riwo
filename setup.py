@@ -20,6 +20,7 @@ setup(
         'sqlalchemy',
         'pip',
         'pyyaml',
+        'requests',
     ],
     test_suite = "riwo.tests",
     url = 'http://bfaludi.com'
