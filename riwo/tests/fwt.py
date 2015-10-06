@@ -7,9 +7,11 @@ import riwo
 import daprot as dp
 import datetime
 import unittest
+import requests
 from riwo.compat import *
 
-__dir__ = os.path.dirname(__file__)
+__dir__ = os.path.join(os.path.dirname(__file__), 'source')
+__remote__ = 'https://raw.githubusercontent.com/bfaludi/riwo/master/riwo/tests/source'
 
 class Groceries(dp.SchemaFlow):
     id = dp.Field('0:8')
@@ -18,7 +20,7 @@ class Groceries(dp.SchemaFlow):
     quantity = dp.Field('34:40', type=long)
     updated_at = dp.Field('40:')
 
-class TSV_Reader(object):
+class CommonCase(object):
     expected_result = [{
       u'quantity': 1,
       u'name': u'đói',
@@ -51,9 +53,6 @@ class TSV_Reader(object):
       u'id': u'P0005'
     }]
 
-    def test_alma(self):
-        print(list(self.reader))
-
     def test_stored_value(self):
         self.assertEqual(list(self.reader), self.expected_result)
 
@@ -69,7 +68,17 @@ class TSV_Reader(object):
     def tearDown(self):
         self.resource.close()
 
-class Test_TSV_Local_Reader_Schema(TSV_Reader, unittest.TestCase):
+class LocalReader(CommonCase, unittest.TestCase):
     def setUp(self):
-        self.resource = io.open(os.path.join(__dir__, 'source/test.fwt'), 'r', encoding='utf-8')
+        self.resource = io.open(os.path.join(__dir__, 'test.fwt'), 'r', encoding='utf-8')
+        self.reader = riwo.fwt.Reader(self.resource, Groceries)
+
+class RequestsReader(CommonCase, unittest.TestCase):
+    def setUp(self):
+        self.resource = requests.get(os.path.join(__remote__, 'test.fwt'))
+        self.reader = riwo.fwt.Reader(self.resource, Groceries)
+
+class UrllibReader(CommonCase, unittest.TestCase):
+    def setUp(self):
+        self.resource = urlopen(os.path.join(__remote__, 'test.fwt'))
         self.reader = riwo.fwt.Reader(self.resource, Groceries)
