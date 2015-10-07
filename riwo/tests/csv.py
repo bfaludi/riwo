@@ -23,35 +23,35 @@ class Groceries(dp.SchemaFlow):
 
 class CommonCase(object):
     expected_result = [{
-      'quantity': 1,
-      'name': 'đói',
-      'updated_at': datetime.datetime(2015, 9, 20, 20, 0),
-      'price': 449.0,
-      'id': 'P0001'
+      u'quantity': 1,
+      u'name': u'đói',
+      u'updated_at': datetime.datetime(2015, 9, 20, 20, 0),
+      u'price': 449.0,
+      u'id': u'P0001'
     }, {
-      'quantity': 1,
-      'name': '배고픈',
-      'updated_at': datetime.datetime(2015, 9, 20, 20, 2),
-      'price': 399.0,
-      'id': 'P0002'
+      u'quantity': 1,
+      u'name': u'배고픈',
+      u'updated_at': datetime.datetime(2015, 9, 20, 20, 2),
+      u'price': 399.0,
+      u'id': u'P0002'
     }, {
-      'quantity': 10,
-      'name': 'голодный',
-      'updated_at': datetime.datetime(2015, 9, 20, 12, 47),
-      'price': 199.0,
-      'id': 'P0003'
+      u'quantity': 10,
+      u'name': u'голодный',
+      u'updated_at': datetime.datetime(2015, 9, 20, 12, 47),
+      u'price': 199.0,
+      u'id': u'P0003'
     }, {
-      'quantity': 1,
-      'name': 'Űrállomás krízis',
-      'updated_at': datetime.datetime(2015, 9, 20, 12, 47),
-      'price': 999.5,
-      'id': 'P0004'
+      u'quantity': 1,
+      u'name': u'Űrállomás krízis',
+      u'updated_at': datetime.datetime(2015, 9, 20, 12, 47),
+      u'price': 999.5,
+      u'id': u'P0004'
     }, {
-      'quantity': 1,
-      'name': 'Ovális iroda',
-      'updated_at': datetime.datetime(2015, 9, 20, 7, 31),
-      'price': 2399.0,
-      'id': 'P0005'
+      u'quantity': 1,
+      u'name': 'Ovális iroda',
+      u'updated_at': datetime.datetime(2015, 9, 20, 7, 31),
+      u'price': 2399.0,
+      u'id': u'P0005'
     }]
 
     def test_stored_value(self):
