@@ -42,12 +42,15 @@ class Reader(AbstractReader):
             if not self.use_header \
             else csv.DictReader(resource_gen, **self.fmtparams)
 
+
 class Writer(AbstractWriter):
+
     # void
     def __init__(self, resource, iterable_data, schema=None, not_convert=False, add_header=True, **fmtparams):
         self.fmtparams = fmtparams
         self.add_header = add_header
         self.resource = resource
+        self.write_resource = self.resource if PY3 else StringIO()
         super(Writer, self).__init__(resource, iterable_data, schema, not_convert)
 
         if self.is_nested():
@@ -57,10 +60,7 @@ class Writer(AbstractWriter):
     # csv.writer
     def init_writer(self):
 
-        self.queue = StringIO()
-        self.stream = self.resource
-
-        return csv.writer(self.queue, **self.fmtparams)
+        return csv.writer(self.write_resource, **self.fmtparams)
 
     # str in PY3 and unicode in PY2
     def unmarshal_item(self, item):
@@ -68,30 +68,33 @@ class Writer(AbstractWriter):
             return item.isoformat()
 
         # Convert to string.
-        return str(item or '')
+        return str(item or u'')
 
     # void
-    def write(self):
-        if self.add_header: self.write_header()
-        super(Writer, self).write()
+    def write_stream(self):
+        if PY3:
+            return
+
+        data = self.write_resource.getvalue()
+        data = decode(data, self.encoding)
+        self.resource.write(data)
+        self.write_resource.truncate(0)
+
+    # void
+    def write_row(self, row):
+        self.writer.writerow(row)
+        self.write_stream()
 
     # void
     def write_header(self):
         self.write_row([code(f, self.encoding) for f in self.fieldnames])
 
     # void
-    def write_row(self, row):
-        self.writer.writerow(row)
-
-        data = self.queue.getvalue()
-        data = decode(data, self.encoding)
-
-        self.stream.write(data)
-        self.queue.truncate(0)
-
-    # void
     def write_item(self, item):
-
         data = unmarshal(item, self.unmarshal_item)
         self.write_row([code(data.get(f, u''), self.encoding) for f in self.fieldnames])
 
+    # void
+    def write(self):
+        if self.add_header: self.write_header()
+        super(Writer, self).write()
