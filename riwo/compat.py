@@ -16,6 +16,12 @@ if PY3: # pragma: no cover
     import io
     StringIO=io.StringIO
 
+    import urllib.request
+    import urllib.parse
+    urlparse = urllib.parse.urlparse
+    urlopen = urllib.request.urlopen
+
+
 else:
     string_types = basestring,
     integer_types = (int, long)
@@ -26,6 +32,11 @@ else:
 
     import cStringIO
     StringIO=cStringIO.StringIO
+
+    import urllib
+    import urlparse
+    urlparse = urlparse.urlparse
+    urlopen = urllib.urlopen
 
 # str in PY3 & unicode in PY2
 def decode(text, encoding):
@@ -38,3 +49,4 @@ def encode(text, encoding):
     if not isinstance(text, binary_type):
         return text.encode(encoding)
     return text
+

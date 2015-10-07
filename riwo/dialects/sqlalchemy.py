@@ -47,7 +47,7 @@ class Reader(AbstractReader):
 
 class Writer(AbstractWriter):
     # void
-    def __init__(self, connection, iterable_data, schema=None, not_convert=False, db_schema=None, table=None):
+    def __init__(self, connection, iterable_data, not_convert=False, db_schema=None, table=None):
         self.db_schema = db_schema
         self.table = table
 
@@ -58,11 +58,11 @@ class Writer(AbstractWriter):
         self.metadata = MetaData()
         self.metadata.bind = connection
 
-        super(Writer, self).__init__(connection, iterable_data, schema, not_convert)
+        super(Writer, self).__init__(connection, iterable_data, None, not_convert)
 
-        if self.is_nested():
-            raise exceptions.NestedSchemaNotSupported("{self} is not support nested schemas." \
-                .format(self=self.name))
+    # void
+    def prerequisite(self):
+        pass
 
     # object
     def init_writer(self):
@@ -73,6 +73,10 @@ class Writer(AbstractWriter):
             return Table(self.table, self.metadata, autoload=True, autoload_with=self.resource.engine, schema=self.db_schema)
         except sqlalchemy.exc.NoSuchTableError as e:
             pass
+
+    # Iterable
+    def init_reader(self):
+        return self.iterable_data
 
     # void
     def create(self, table, replace=False):

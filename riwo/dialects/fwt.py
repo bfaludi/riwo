@@ -9,7 +9,7 @@ from ..compat import *
 class Reader(AbstractReader):
     # Iterable
     def get_iterable_data(self):
-        return to_iterable(self.resource)
+        return (decode(item, self.encoding) for item in to_iterable(self.resource))
 
 class Writer(AbstractWriter):
     # void
