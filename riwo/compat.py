@@ -30,6 +30,10 @@ else:
     binary_type = str
     long = long
 
+    import codecs
+    getencoder=codecs.getincrementalencoder
+    getreader=codecs.getreader
+
     import cStringIO
     StringIO=cStringIO.StringIO
 
