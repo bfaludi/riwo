@@ -8,7 +8,6 @@ import daprot as dp
 import datetime
 import unittest
 import requests
-import forcedtypes as t
 from riwo.compat import *
 
 __dir__ = os.path.join(os.path.dirname(__file__), 'source')
@@ -17,40 +16,40 @@ __remote__ = 'https://raw.githubusercontent.com/bfaludi/riwo/csv/riwo/tests/sour
 class Groceries(dp.SchemaFlow):
     id = dp.Field(0)
     name = dp.Field(1, type=str, transforms=str.strip)
-    price = dp.Field(2, type=t.new(t.Float, locale='hu_HU'))
+    price = dp.Field(2)
     quantity = dp.Field(3, type=int)
-    updated_at = dp.Field(4, type=t.Datetime, default_value=datetime.datetime.now)
+    updated_at = dp.Field(4)
 
 class CommonCase(object):
     expected_result = [{
       u'quantity': 1,
       u'name': u'đói',
-      u'updated_at': datetime.datetime(2015, 9, 20, 20, 0),
-      u'price': 449.0,
+      u'updated_at': u'2015.09.20 20:00',
+      u'price': u'449',
       u'id': u'P0001'
     }, {
       u'quantity': 1,
       u'name': u'배고픈',
-      u'updated_at': datetime.datetime(2015, 9, 20, 20, 2),
-      u'price': 399.0,
+      u'updated_at': u'2015.09.20 20:02',
+      u'price': u'399',
       u'id': u'P0002'
     }, {
       u'quantity': 10,
       u'name': u'голодный',
-      u'updated_at': datetime.datetime(2015, 9, 20, 12, 47),
-      u'price': 199.0,
+      u'updated_at': u'',
+      u'price': u'199',
       u'id': u'P0003'
     }, {
       u'quantity': 1,
       u'name': u'Űrállomás krízis',
-      u'updated_at': datetime.datetime(2015, 9, 20, 12, 47),
-      u'price': 999.5,
+      u'updated_at': u'2015.09.20 12:47',
+      u'price': u'999,5',
       u'id': u'P0004'
     }, {
       u'quantity': 1,
-      u'name': 'Ovális iroda',
-      u'updated_at': datetime.datetime(2015, 9, 20, 7, 31),
-      u'price': 2399.0,
+      u'name': u'Ovális iroda',
+      u'updated_at': u'2015.09.20 07:31',
+      u'price': u'2 399',
       u'id': u'P0005'
     }]
 

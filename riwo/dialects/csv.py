@@ -72,8 +72,6 @@ class UTF8Recoder:
     Iterator that reads an encoded stream and reencodes the input to UTF-8
     """
     def __init__(self, f, encoding):
-        print getreader(encoding)
-        print getreader(encoding)(f)
         self.reader = getreader(encoding)(f)
 
     def __iter__(self):
