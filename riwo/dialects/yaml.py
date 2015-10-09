@@ -25,7 +25,7 @@ class Reader(AbstractReader):
     def get_iterable_data(self):
         # WARNING: It will contains the whole dataset in memory.
         content = decode(get_content(self.resource), self.encoding)
-        data = yaml.loads(content)
+        data = yaml.load(content)
         return dm.Mapper(data, routes = {'root': self.route}).root or []
 
 class Writer(AbstractWriter):
@@ -46,4 +46,4 @@ class Writer(AbstractWriter):
             if not self.root \
             else { self.root:self.read_items() }
         unmarshaled_data = unmarshal(data, self.unmarshal_item)
-        yaml.dump(unmarshaled_data, self.resource, default_flow_style = False)
+        yaml.safe_dump(unmarshaled_data, self.resource, default_flow_style = False)

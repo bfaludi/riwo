@@ -11,10 +11,7 @@ import datetime
 import unittest
 import requests
 from riwo.compat import *
-from . import CommonReader
-
-__dir__ = os.path.join(os.path.dirname(__file__), 'source')
-__remote__ = 'https://raw.githubusercontent.com/bfaludi/riwo/master/riwo/tests/source'
+from . import CommonReader, __dir__, __remote__
 
 class Schema(dp.SchemaFlow):
     id = dp.Field()

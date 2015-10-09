@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import os
+
+__dir__ = os.path.join(os.path.dirname(__file__), 'source')
+__remote__ = 'https://raw.githubusercontent.com/bfaludi/riwo/master/riwo/tests/source'
+
 class CommonReader(object):
     expected_result = [{
       u'quantity': 1,
