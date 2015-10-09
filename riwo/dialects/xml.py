@@ -15,8 +15,8 @@ from xml.dom import minidom
 
 class Reader(AbstractReader):
     # void
-    def __init__(self, resource, schema, offset=0, limit=None, route=None):
-        self.route = os.path.join(route or u'', u'!')
+    def __init__(self, resource, schema, route, offset=0, limit=None):
+        self.route = os.path.join(route, u'!')
         super(Reader, self).__init__(resource, schema, offset, limit)
 
     # Iterable
@@ -27,10 +27,10 @@ class Reader(AbstractReader):
 
 class Writer(AbstractWriter):
     # void
-    def __init__(self, resource, iterable_data, item_name, schema=None, not_convert=False, root='root'):
+    def __init__(self, resource, iterable_data, item_name, input_schema=None, root='root'):
         self.root = root
         self.item_name = item_name
-        super(Writer, self).__init__(resource, iterable_data, schema, not_convert)
+        super(Writer, self).__init__(resource, iterable_data, input_schema)
 
     # type
     def unmarshal_item(self, item):

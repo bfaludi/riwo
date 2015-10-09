@@ -39,10 +39,10 @@ class Reader(AbstractReader):
 
 class Writer(AbstractWriter):
     # void
-    def __init__(self, resource, iterable_data, schema=None, not_convert=False, add_header=True, **fmtparams):
+    def __init__(self, resource, iterable_data, input_schema=None, add_header=True, **fmtparams):
         self.fmtparams = fmtparams
         self.add_header = add_header
-        super(Writer, self).__init__(resource, iterable_data, schema, not_convert)
+        super(Writer, self).__init__(resource, iterable_data, input_schema)
 
         if self.is_nested():
             raise exceptions.NestedSchemaNotSupported("{self} is not support nested schemas." \

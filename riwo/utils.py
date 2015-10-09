@@ -5,8 +5,7 @@ from collections import Iterable
 # Iterable
 def to_iterable(resource):
     if isinstance(resource, requests.Response):
-        # TODO: Fix it to work with iterable way!
-        return resource.text.split(u'\n')
+        return resource.iter_lines()
     if isinstance(resource, Iterable):
         return resource
     elif hasattr(resource, 'xreadlines'):

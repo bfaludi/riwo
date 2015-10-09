@@ -25,14 +25,14 @@ class Reader(AbstractReader):
     def get_iterable_data(self):
         # WARNING: It will contains the whole dataset in memory.
         content = decode(get_content(self.resource), self.encoding)
-        data = yaml.loads(content)
+        data = yaml.load(content)
         return dm.Mapper(data, routes = {'root': self.route}).root or []
 
 class Writer(AbstractWriter):
     # void
-    def __init__(self, resource, iterable_data, schema=None, not_convert=False, root=None):
+    def __init__(self, resource, iterable_data, input_schema=None, root=None):
         self.root = root
-        super(Writer, self).__init__(resource, iterable_data, schema, not_convert)
+        super(Writer, self).__init__(resource, iterable_data, input_schema)
 
     # type
     def unmarshal_item(self, item):

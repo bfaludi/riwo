@@ -32,10 +32,10 @@ class Writer(AbstractWriter):
     PP_PARAMS = {'sort_keys': False, 'indent': 2, 'separators': (u',', u': ') }
 
     # void
-    def __init__(self, resource, iterable_data, schema=None, not_convert=False, root=None, pretty_print=False):
+    def __init__(self, resource, iterable_data, input_schema=None, root=None, pretty_print=False):
         self.root = root
         self.pretty_print = pretty_print
-        super(Writer, self).__init__(resource, iterable_data, schema, not_convert)
+        super(Writer, self).__init__(resource, iterable_data, input_schema)
 
     # type
     def unmarshal_item(self, item):
