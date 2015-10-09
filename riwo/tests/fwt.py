@@ -93,6 +93,9 @@ class LocalWriter(unittest.TestCase):
         quantity = dp.Field()
         updated_at = dp.Field()
 
+    class NestedSchema(dp.SchemaFlow):
+        inner_schema = dp.DictOf(Schema)
+
     iterable_input = CommonReader.expected_result
     test_file_base = os.path.join(__dir__, 'output-{token}.fwt')
 
@@ -160,6 +163,11 @@ P0005 Ovális iroda     2 399 1        2015.09.20 07:31
         self.assertEqual(self.writer.unmarshal_item(current_datetime), current_datetime.isoformat())
         self.assertEqual(self.writer.unmarshal_item(4.21), u'4.21')
         self.assertEqual(self.writer.unmarshal_item(u'голодный'), u'голодный')
+
+    def test_requisites(self):
+        with self.assertRaises(riwo.exceptions.NestedSchemaNotSupported):
+             riwo.fwt.Writer(self.resource, [], self.NestedSchema)
+        self.content = u''
 
     def tearDown(self):
         self.resource.close()

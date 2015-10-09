@@ -138,25 +138,26 @@ class Writer(RiWo):
     def init_writer(self):
         pass
 
+    # dp.SchemaFlow
+    @property
+    def flow_reader(self):
+        if not isinstance(self.reader, (dp.SchemaFlow, Reader)):
+            return self.current_schema([])
+
+        return self.reader
+
     # list<str>
     @property
     def fieldnames(self):
         if hasattr(self, '_fieldnames'):
             return self._fieldnames
 
-        if not isinstance(self.reader, (dp.SchemaFlow, Reader)):
-            self._fieldnames = self.current_schema([]).fieldnames
-        else:
-            self._fieldnames = self.reader.fieldnames
-
+        self._fieldnames = self.flow_reader.fieldnames
         return self._fieldnames
 
     # bool
     def is_nested(self):
-        if not isinstance(self.reader, (dp.SchemaFlow, Reader)):
-            return self.current_schema([]).is_nested()
-
-        return self.reader.is_nested()
+        return self.flow_reader.is_nested()
 
     # list<dict>
     def read_items(self):
