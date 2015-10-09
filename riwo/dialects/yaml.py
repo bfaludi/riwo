@@ -30,9 +30,9 @@ class Reader(AbstractReader):
 
 class Writer(AbstractWriter):
     # void
-    def __init__(self, resource, iterable_data, schema=None, not_convert=False, root=None):
+    def __init__(self, resource, iterable_data, input_schema=None, root=None):
         self.root = root
-        super(Writer, self).__init__(resource, iterable_data, schema, not_convert)
+        super(Writer, self).__init__(resource, iterable_data, input_schema)
 
     # type
     def unmarshal_item(self, item):
@@ -46,4 +46,4 @@ class Writer(AbstractWriter):
             if not self.root \
             else { self.root:self.read_items() }
         unmarshaled_data = unmarshal(data, self.unmarshal_item)
-        yaml.safe_dump(unmarshaled_data, self.resource, default_flow_style = False)
+        yaml.dump(unmarshaled_data, self.resource, default_flow_style = False)
