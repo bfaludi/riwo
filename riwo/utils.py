@@ -19,6 +19,8 @@ def to_iterable(resource):
 
 # str or bytes
 def get_content(resource):
+    if isinstance(resource, requests.Response):
+        return resource.text
     if hasattr(resource, 'read'):
         return resource.read()
 

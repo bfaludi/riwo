@@ -62,3 +62,23 @@ class LocalRouteReader(CommonReader, unittest.TestCase):
     def setUp(self):
         self.resource = io.open(os.path.join(__dir__, 'test-route.yml'), 'r', encoding='utf-8')
         self.reader = riwo.yaml.Reader(self.resource, Schema, route='response/items')
+
+class RequestsRootReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = requests.get(os.path.join(__remote__, 'test-root.yml'))
+        self.reader = riwo.yaml.Reader(self.resource, Schema)
+
+class RequestsRouteReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = requests.get(os.path.join(__remote__, 'test-route.yml'))
+        self.reader = riwo.yaml.Reader(self.resource, Schema, route='response/items')
+
+class UrllibRootReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = urlopen(os.path.join(__remote__, 'test-root.yml'))
+        self.reader = riwo.yaml.Reader(self.resource, Schema)
+
+class UrllibRouteReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = urlopen(os.path.join(__remote__, 'test-route.yml'))
+        self.reader = riwo.yaml.Reader(self.resource, Schema, route='response/items')

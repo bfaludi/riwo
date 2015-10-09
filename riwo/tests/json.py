@@ -30,3 +30,22 @@ class LocalRouteReader(CommonReader, unittest.TestCase):
         self.resource = io.open(os.path.join(__dir__, 'test-route.json'), 'r', encoding='utf-8')
         self.reader = riwo.json.Reader(self.resource, Schema, route='response/items')
 
+class RequestsRootReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = requests.get(os.path.join(__remote__, 'test-root.json'))
+        self.reader = riwo.json.Reader(self.resource, Schema)
+
+class RequestsRouteReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = requests.get(os.path.join(__remote__, 'test-route.json'))
+        self.reader = riwo.json.Reader(self.resource, Schema, route='response/items')
+
+class UrllibRootReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = urlopen(os.path.join(__remote__, 'test-root.json'))
+        self.reader = riwo.json.Reader(self.resource, Schema)
+
+class UrllibRouteReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = urlopen(os.path.join(__remote__, 'test-route.json'))
+        self.reader = riwo.json.Reader(self.resource, Schema, route='response/items')

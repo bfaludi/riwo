@@ -63,3 +63,22 @@ class LocalRouteReader(CommonReader, unittest.TestCase):
         self.resource = io.open(os.path.join(__dir__, 'test-route.xml'), 'rb')
         self.reader = riwo.xml.Reader(self.resource, Schema, route='items/item')
 
+class RequestsRootReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = requests.get(os.path.join(__remote__, 'test-root.xml'))
+        self.reader = riwo.xml.Reader(self.resource, Schema, route='item')
+
+class RequestsRouteReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = requests.get(os.path.join(__remote__, 'test-route.xml'))
+        self.reader = riwo.xml.Reader(self.resource, Schema, route='items/item')
+
+class UrllibRootReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = urlopen(os.path.join(__remote__, 'test-root.xml'))
+        self.reader = riwo.xml.Reader(self.resource, Schema, route='item')
+
+class UrllibRouteReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = urlopen(os.path.join(__remote__, 'test-route.xml'))
+        self.reader = riwo.xml.Reader(self.resource, Schema, route='items/item')

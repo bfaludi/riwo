@@ -24,3 +24,13 @@ class LocalReader(CommonReader, unittest.TestCase):
     def setUp(self):
         self.resource = io.open(os.path.join(__dir__, 'test.onelinejson'), 'r', encoding='utf-8')
         self.reader = riwo.onelinejson.Reader(self.resource, Schema)
+
+class RequestsReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = requests.get(os.path.join(__remote__, 'test.onelinejson'))
+        self.reader = riwo.onelinejson.Reader(self.resource, Schema)
+
+class UrllibReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = urlopen(os.path.join(__remote__, 'test.onelinejson'))
+        self.reader = riwo.onelinejson.Reader(self.resource, Schema)

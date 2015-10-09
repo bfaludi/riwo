@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import os
 import dm
 import datetime
+import requests
 import xmlsquash
 import daprot.mapper
 from .. import (
@@ -22,7 +23,10 @@ class Reader(AbstractReader):
     # Iterable
     def get_iterable_data(self):
         # WARNING: It will contains the whole dataset in memory.
-        data = xmlsquash.XML2Dict().parseFile(self.resource)
+        if isinstance(self.resource, requests.Response):
+            data = xmlsquash.XML2Dict().parseString(encode(get_content(self.resource), self.encoding))
+        else:
+            data = xmlsquash.XML2Dict().parseFile(self.resource)
         return dm.Mapper(data, routes = {'root': self.route}).root or []
 
 class Writer(AbstractWriter):
