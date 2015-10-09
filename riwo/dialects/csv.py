@@ -35,6 +35,30 @@ class Py3Reader(AbstractReader):
             if not self.use_header \
             else csv.DictReader(resource_gen, **self.fmtparams)
 
+class Py2Reader(AbstractReader):
+    # void
+    def __init__(self, resource, schema, offset=0, limit=None, use_header=False, **fmtparams):
+        self.fmtparams = fmtparams
+        self.use_header = use_header
+        super(Py2Reader,self).__init__(resource, schema, offset, limit)
+
+    # function
+    def get_mapper(self):
+        return daprot.mapper.INDEX \
+            if not self.use_header \
+            else daprot.mapper.NAME
+
+    # Iterable
+    def get_iterable_data(self):
+        resource_gen = (encode(r, self.encoding) for r in to_iterable(self.resource))
+        reader_gen = csv.reader(resource_gen, **self.fmtparams)
+        result_gen = ( [unicode(c, self.encoding) for c in r] for r in reader_gen )
+        if not self.use_header:
+            return result_gen
+
+        header = result_gen.next()
+        return (dict(zip(header,r)) for r in result_gen)
+
 class Py3Writer(AbstractWriter):
     # void
     def __init__(self, resource, iterable_data, input_schema=None, add_header=True, **fmtparams):
@@ -67,35 +91,6 @@ class Py3Writer(AbstractWriter):
     def write_item(self, item):
         self.writer.writerow(unmarshal(item, self.unmarshal_item))
 
-class UTF8Recoder:
-    """
-    Iterator that reads an encoded stream and reencodes the input to UTF-8
-    """
-    def __init__(self, f, encoding):
-        self.reader = getreader(encoding)(f)
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        return encode(self.reader.next(), "utf-8")
-
-class UnicodeReader:
-    """
-    A CSV reader which will iterate over lines in the CSV file "f",
-    which is encoded in the given encoding.
-    """
-
-    def __init__(self, f, reader=csv.reader, dialect=csv.excel, encoding="utf-8", **kwds):
-        f = UTF8Recoder(f, encoding)
-        self.reader = reader(f, dialect=dialect, **kwds)
-
-    def next(self):
-        row = self.reader.next()
-        return [unicode(s, "utf-8") for s in row]
-
-    def __iter__(self):
-        return self
 
 class UnicodeWriter:
     """
@@ -125,24 +120,6 @@ class UnicodeWriter:
     def writerows(self, rows):
         for row in rows:
             self.writerow(row)
-
-class Py2Reader(AbstractReader):
-    # void
-    def __init__(self, resource, schema, offset=0, limit=None, use_header=False, **fmtparams):
-        self.fmtparams = fmtparams
-        self.use_header = use_header
-        super(Py2Reader,self).__init__(resource, schema, offset, limit)
-
-    # function
-    def get_mapper(self):
-        return daprot.mapper.INDEX \
-            if not self.use_header \
-            else daprot.mapper.NAME
-
-    # Iterable (csv.reader or csv.DictReader)
-    def get_iterable_data(self):
-        # resource_gen = (decode(r, self.encoding) for r in to_iterable(self.resource))
-        return UnicodeReader(self.resource, csv.reader if not self.use_header else csv.DictReader, **self.fmtparams)
 
 class Py2Writer(AbstractWriter):
     # void

@@ -12,7 +12,7 @@ class RiWo(object):
     # str
     @property
     def encoding(self):
-        if hasattr(self.resource, 'encoding'):
+        if hasattr(self.resource, 'encoding') and self.resource.encoding is not None:
             return str(self.resource.encoding)
 
         return 'utf-8'
