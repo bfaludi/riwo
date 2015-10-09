@@ -5,80 +5,56 @@ import io
 import os
 import riwo
 import daprot as dp
+import string
+import random
 import datetime
 import unittest
 import requests
 from riwo.compat import *
+from . import CommonReader, __dir__, __remote__
 
-__dir__ = os.path.join(os.path.dirname(__file__), 'source')
 __remote__ = 'https://raw.githubusercontent.com/bfaludi/riwo/csv/riwo/tests/source'
 
-class Groceries(dp.SchemaFlow):
+class IndexSchema(dp.SchemaFlow):
     id = dp.Field(0)
-    name = dp.Field(1, type=str, transforms=str.strip)
+    name = dp.Field(1, type=unicode, transforms=unicode.strip)
     price = dp.Field(2)
-    quantity = dp.Field(3, type=int)
+    quantity = dp.Field(3, type=long)
     updated_at = dp.Field(4)
 
-class CommonCase(object):
-    expected_result = [{
-      u'quantity': 1,
-      u'name': u'đói',
-      u'updated_at': u'2015.09.20 20:00',
-      u'price': u'449',
-      u'id': u'P0001'
-    }, {
-      u'quantity': 1,
-      u'name': u'배고픈',
-      u'updated_at': u'2015.09.20 20:02',
-      u'price': u'399',
-      u'id': u'P0002'
-    }, {
-      u'quantity': 10,
-      u'name': u'голодный',
-      u'updated_at': u'',
-      u'price': u'199',
-      u'id': u'P0003'
-    }, {
-      u'quantity': 1,
-      u'name': u'Űrállomás krízis',
-      u'updated_at': u'2015.09.20 12:47',
-      u'price': u'999,5',
-      u'id': u'P0004'
-    }, {
-      u'quantity': 1,
-      u'name': u'Ovális iroda',
-      u'updated_at': u'2015.09.20 07:31',
-      u'price': u'2 399',
-      u'id': u'P0005'
-    }]
+class HeaderedSchema(dp.SchemaFlow):
+    id = dp.Field()
+    name = dp.Field(type=unicode, transforms=unicode.strip)
+    price = dp.Field()
+    quantity = dp.Field(type=long)
+    updated_at = dp.Field()
 
-    def test_stored_value(self):
-        self.assertEqual(list(self.reader), self.expected_result)
-
-    def test_iterated_value(self):
-        idx = 0
-        for item in self.reader:
-            self.assertEqual(item, self.expected_result[idx])
-            idx += 1
-
-    def test_length(self):
-        self.assertEqual(len(list(self.reader)), 5)
-
-    def tearDown(self):
-        self.resource.close()
-
-class LocalReader(CommonCase, unittest.TestCase):
+class LocalReader(CommonReader, unittest.TestCase):
     def setUp(self):
         self.resource = io.open(os.path.join(__dir__, 'test.csv'), 'r', encoding='utf-8')
-        self.reader = riwo.csv.Reader(self.resource, Groceries)
+        self.reader = riwo.csv.Reader(self.resource, IndexSchema)
 
-class RequestsReader(CommonCase, unittest.TestCase):
+class LocalHeaderReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = io.open(os.path.join(__dir__, 'test-header.csv'), 'r', encoding='utf-8')
+        self.reader = riwo.csv.Reader(self.resource, HeaderedSchema, use_header=True)
+
+class RequestsReader(CommonReader, unittest.TestCase):
     def setUp(self):
         self.resource = requests.get(os.path.join(__remote__, 'test.csv'))
-        self.reader = riwo.csv.Reader(self.resource, Groceries)
+        self.reader = riwo.csv.Reader(self.resource, IndexSchema)
 
-class UrllibReader(CommonCase, unittest.TestCase):
+class RequestsHeaderReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = requests.get(os.path.join(__remote__, 'tes-headert.csv'))
+        self.reader = riwo.csv.Reader(self.resource, IndexSchema, use_header=True)
+
+class UrllibReader(CommonReader, unittest.TestCase):
     def setUp(self):
         self.resource = urlopen(os.path.join(__remote__, 'test.csv'))
-        self.reader = riwo.csv.Reader(self.resource, Groceries)
+        self.reader = riwo.csv.Reader(self.resource, IndexSchema)
+
+class UrllibHeaderReader(CommonReader, unittest.TestCase):
+    def setUp(self):
+        self.resource = urlopen(os.path.join(__remote__, 'test-header.csv'))
+        self.reader = riwo.csv.Reader(self.resource, IndexSchema, use_header=True)
