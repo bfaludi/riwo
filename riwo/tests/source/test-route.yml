@@ -1,0 +1,27 @@
+response:
+  items:
+  - id: P0001
+    name: đói
+    price: 449
+    quantity: 1
+    updated_at: 2015.09.20 20:00
+  - id: P0002
+    name: 배고픈
+    price: 399
+    quantity: 1
+    updated_at: 2015.09.20 20:02
+  - id: P0003
+    name: голодный
+    price: 199
+    quantity: 10
+    updated_at: ''
+  - id: P0004
+    name: Űrállomás krízis
+    price: 999,5
+    quantity: 1
+    updated_at: 2015.09.20 12:47
+  - id: P0005
+    name: Ovális iroda
+    price: 2 399
+    quantity: 1
+    updated_at: 2015.09.20 07:31

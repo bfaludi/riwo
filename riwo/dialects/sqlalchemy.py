@@ -47,8 +47,8 @@ class Reader(AbstractReader):
 
 class Writer(AbstractWriter):
     # void
-    def __init__(self, connection, iterable_data, not_convert=False, db_schema=None, table=None):
-        self.db_schema = db_schema
+    def __init__(self, connection, iterable_data, schema=None, table=None):
+        self.schema = schema
         self.table = table
 
         if not isinstance(connection, sqlalchemy.engine.base.Connection):
@@ -58,7 +58,7 @@ class Writer(AbstractWriter):
         self.metadata = MetaData()
         self.metadata.bind = connection
 
-        super(Writer, self).__init__(connection, iterable_data, None, not_convert)
+        super(Writer, self).__init__(connection, iterable_data, None)
 
     # void
     def prerequisite(self):
@@ -70,13 +70,9 @@ class Writer(AbstractWriter):
             return
 
         try:
-            return Table(self.table, self.metadata, autoload=True, autoload_with=self.resource.engine, schema=self.db_schema)
+            return Table(self.table, self.metadata, autoload=True, autoload_with=self.resource.engine, schema=self.schema)
         except sqlalchemy.exc.NoSuchTableError as e:
             pass
-
-    # Iterable
-    def init_reader(self):
-        return self.iterable_data
 
     # void
     def create(self, table, replace=False):
@@ -86,7 +82,7 @@ class Writer(AbstractWriter):
 
         # Set up missing variables.
         if not self.table: self.table = table.name
-        if not self.db_schema: self.db_schema = table.schema
+        if not self.schema: self.schema = table.schema
 
         # Recalibrate writer.
         self.writer = self.init_writer()
