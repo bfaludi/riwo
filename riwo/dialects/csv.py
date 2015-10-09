@@ -70,7 +70,7 @@ class Py3Writer(AbstractWriter):
             raise exceptions.NestedSchemaNotSupported("{self} is not support nested schemas." \
                 .format(self=self.name))
 
-    # csv.writer
+    # csv.DictWriter
     def init_writer(self):
         return csv.DictWriter(self.resource, fieldnames=self.fieldnames, **self.fmtparams)
 
@@ -91,13 +91,27 @@ class Py3Writer(AbstractWriter):
     def write_item(self, item):
         self.writer.writerow(unmarshal(item, self.unmarshal_item))
 
+class Py2Writer(Py3Writer):
+    # UnicodeWriter
+    def init_writer(self):
+        return UnicodeWriter(self.resource, **self.fmtparams)
+
+    # void
+    def write_header(self):
+        self.writer.writerow(self.fieldnames)
+
+    # void
+    def write(self):
+        if self.add_header: self.write_header()
+        for item in self.reader:
+            self.write_item(item)
+
+    # void
+    def write_item(self, item):
+        data = unmarshal(item, self.unmarshal_item)
+        self.writer.writerow([data[c] for c in self.fieldnames])
 
 class UnicodeWriter:
-    """
-    A CSV writer which will write rows to CSV file "f",
-    which is encoded in the given encoding.
-    """
-
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
         # Redirect output to a queue
         self.queue = StringIO()
@@ -120,43 +134,6 @@ class UnicodeWriter:
     def writerows(self, rows):
         for row in rows:
             self.writerow(row)
-
-class Py2Writer(AbstractWriter):
-    # void
-    def __init__(self, resource, iterable_data, input_schema=None, add_header=True, **fmtparams):
-        self.fmtparams = fmtparams
-        self.add_header = add_header
-        super(Py2Writer, self).__init__(resource, iterable_data, input_schema)
-
-        if self.is_nested():
-            raise exceptions.NestedSchemaNotSupported("{self} is not support nested schemas." \
-                .format(self=self.name))
-
-    # csv.writer
-    def init_writer(self):
-        return UnicodeWriter(self.resource, **self.fmtparams)
-
-    # str in PY3 and unicode in PY2
-    def unmarshal_item(self, item):
-        if isinstance(item, (datetime.date, datetime.datetime)):
-            return item.isoformat()
-
-        # Convert to string.
-        return unicode(item or u'')
-
-    # void
-    def write_header(self):
-        self.writer.writerow(self.fieldnames)
-
-    # void
-    def write(self):
-        if self.add_header: self.write_header()
-        super(Py2Writer, self).write()
-
-    # void
-    def write_item(self, item):
-        data = unmarshal(item, self.unmarshal_item)
-        self.writer.writerow([data.get(f, u'') for f in self.fieldnames])
 
 if PY3:
     Reader = Py3Reader
