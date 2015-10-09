@@ -98,11 +98,10 @@ class Reader(RiWo):
 
 class Writer(RiWo):
     # void
-    def __init__(self, resource, iterable_data, schema=None, not_convert=False):
+    def __init__(self, resource, iterable_data, input_schema=None):
         self.resource = resource
         self.iterable_data = iterable_data
-        self.schema = schema
-        self.not_convert = not_convert
+        self.input_schema = input_schema
 
         self.prerequisite()
 
@@ -111,33 +110,29 @@ class Writer(RiWo):
 
     # void
     def prerequisite(self):
-        if not self.output_schema:
+        if not self.current_schema:
             raise exceptions.SchemaRequired('No schema was defined for {self}' \
+                .format(self=self.name))
+
+        elif dp.SchemaFlow not in self.current_schema.__bases__:
+            raise exceptions.SchemaRequired('Schema has to be dp.SchemaFlow at {self}' \
                 .format(self=self.name))
 
     # dp.SchemaFlow
     @property
-    def input_schema(self):
+    def current_schema(self):
         if isinstance(self.iterable_data, dp.SchemaFlow):
             return self.iterable_data.__class__
         elif isinstance(self.iterable_data, Reader):
             return self.iterable_data.schema
+        elif self.input_schema is not None:
+            return self.input_schema
 
         return None
 
     # dp.SchemaFlow
-    @property
-    def output_schema(self):
-        return self.schema \
-            if self.schema \
-            else self.input_schema
-
-    # dp.SchemaFlow
     def init_reader(self):
-        if self.input_schema == self.output_schema or self.not_convert:
-            return self.iterable_data
-
-        return self.output_schema(self.iterable_data)
+        return self.iterable_data
 
     # object
     def init_writer(self):
@@ -149,8 +144,8 @@ class Writer(RiWo):
         if hasattr(self, '_fieldnames'):
             return self._fieldnames
 
-        if not isinstance(self.reader, (dp.SchemaFlow, Reader)) and self.not_convert:
-            self._fieldnames = self.output_schema([]).fieldnames
+        if not isinstance(self.reader, (dp.SchemaFlow, Reader)):
+            self._fieldnames = self.current_schema([]).fieldnames
         else:
             self._fieldnames = self.reader.fieldnames
 
@@ -158,8 +153,8 @@ class Writer(RiWo):
 
     # bool
     def is_nested(self):
-        if not isinstance(self.reader, (dp.SchemaFlow, Reader)) and self.not_convert:
-            return self.output_schema([]).is_nested()
+        if not isinstance(self.reader, (dp.SchemaFlow, Reader)):
+            return self.current_schema([]).is_nested()
 
         return self.reader.is_nested()
 
