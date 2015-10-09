@@ -11,6 +11,7 @@ import datetime
 import unittest
 import requests
 from riwo.compat import *
+from . import CommonReader as AbstractCommonReader
 
 __dir__ = os.path.join(os.path.dirname(__file__), 'source')
 __remote__ = 'https://raw.githubusercontent.com/bfaludi/riwo/master/riwo/tests/source'
@@ -22,7 +23,7 @@ class Schema(dp.SchemaFlow):
     quantity = dp.Field('quantity/text', type=long)
     updated_at = dp.Field('updated_at/text')
 
-class CommonReader(object):
+class CommonReader(AbstractCommonReader):
     expected_result = [{
       u'quantity': 1,
       u'name': u'đói',
@@ -54,21 +55,6 @@ class CommonReader(object):
       u'price': u'2 399',
       u'id': u'P0005'
     }]
-
-    def test_stored_value(self):
-        self.assertEqual(list(self.reader), self.expected_result)
-
-    def test_iterated_value(self):
-        idx = 0
-        for item in self.reader:
-            self.assertEqual(item, self.expected_result[idx])
-            idx += 1
-
-    def test_length(self):
-        self.assertEqual(len(list(self.reader)), 5)
-
-    def tearDown(self):
-        self.resource.close()
 
 class LocalRootReader(CommonReader, unittest.TestCase):
     def setUp(self):
