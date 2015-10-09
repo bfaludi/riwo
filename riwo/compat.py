@@ -13,10 +13,14 @@ if PY3: # pragma: no cover
     long = int
     unicode = str
 
+    import io
+    StringIO=io.StringIO
+
     import urllib.request
     import urllib.parse
     urlparse = urllib.parse.urlparse
     urlopen = urllib.request.urlopen
+
 
 else:
     string_types = basestring,
@@ -25,6 +29,13 @@ else:
     text_type = unicode
     binary_type = str
     long = long
+
+    import codecs
+    getencoder=codecs.getincrementalencoder
+    getreader=codecs.getreader
+
+    import cStringIO
+    StringIO=cStringIO.StringIO
 
     import urllib
     import urlparse

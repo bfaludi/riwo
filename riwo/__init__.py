@@ -12,7 +12,7 @@ class RiWo(object):
     # str
     @property
     def encoding(self):
-        if hasattr(self.resource, 'encoding'):
+        if hasattr(self.resource, 'encoding') and self.resource.encoding is not None:
             return str(self.resource.encoding)
 
         return 'utf-8'
@@ -170,7 +170,7 @@ class Writer(RiWo):
 
     # void
     def write_item(self, item):
-        raise extension.NotImplemented("{self}'s `write_item(item)` function is not implemented yet!" \
+        raise exceptions.NotImplemented("{self}'s `write_item(item)` function is not implemented yet!" \
             .format(self=self.name))
 
 from .dialects import *
