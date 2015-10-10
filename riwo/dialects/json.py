@@ -29,12 +29,13 @@ class Reader(AbstractReader):
         return dm.Mapper(json_data, routes = {'root': self.route}).root or []
 
 class Writer(AbstractWriter):
-    PP_PARAMS = {'sort_keys': False, 'indent': 2, 'separators': (u',', u': ') }
+    PP_PARAMS = {'indent': 2, 'separators': (u',', u': ') }
 
     # void
-    def __init__(self, resource, iterable_data, input_schema=None, root=None, pretty_print=False):
+    def __init__(self, resource, iterable_data, input_schema=None, root=None, pretty_print=False, sort_keys=False):
         self.root = root
         self.pretty_print = pretty_print
+        self.sort_keys = sort_keys
         super(Writer, self).__init__(resource, iterable_data, input_schema)
 
     # type
@@ -50,5 +51,6 @@ class Writer(AbstractWriter):
             else { self.root:self.read_items() }
         unmarshaled_data = unmarshal(data, self.unmarshal_item)
 
-        json_data = json.dumps(unmarshaled_data, ensure_ascii=False, **(self.PP_PARAMS if self.pretty_print else {}))
+        json_data = json.dumps(unmarshaled_data, sort_keys=self.sort_keys, ensure_ascii=False, \
+                               **(self.PP_PARAMS if self.pretty_print else {}))
         self.resource.write(decode(json_data, self.encoding))

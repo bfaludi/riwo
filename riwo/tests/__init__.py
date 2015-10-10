@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import io
 import os
+import string
+import random
 
 __dir__ = os.path.join(os.path.dirname(__file__), 'source')
 __remote__ = 'https://raw.githubusercontent.com/bfaludi/riwo/master/riwo/tests/source'
@@ -52,3 +55,19 @@ class CommonReader(object):
 
     def tearDown(self):
         self.resource.close()
+
+class CommonWriter(object):
+    iterable_input = CommonReader.expected_result
+    test_file_base = os.path.join(__dir__, 'output-{token}.{ext}')
+
+    def setUp(self):
+        self.test_file_path = self.test_file_base \
+            .format(ext=self.ext, token=''.join([random.choice(string.ascii_uppercase) for i in range(6)]))
+        self.resource = io.open(self.test_file_path, 'w', encoding='utf-8')
+
+    def tearDown(self):
+        self.resource.close()
+        with io.open(self.test_file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        self.assertEqual(self.content, content)
+        os.remove(self.test_file_path)

@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-import io
 import os
+import io
 import riwo
 import daprot as dp
-import string
-import random
 import datetime
 import unittest
 import requests
 from riwo.compat import *
-from . import CommonReader, __dir__, __remote__
+from . import (
+    CommonReader, 
+    CommonWriter, 
+    __dir__, 
+    __remote__
+)
 
 class Schema(dp.SchemaFlow):
     id = dp.Field('0:8')
@@ -35,7 +38,7 @@ class UrllibReader(CommonReader, unittest.TestCase):
         self.resource = urlopen(os.path.join(__remote__, 'test.fwt'))
         self.reader = riwo.fwt.Reader(self.resource, Schema)
 
-class LocalWriter(unittest.TestCase):
+class LocalWriter(CommonWriter, unittest.TestCase):
     class Schema(dp.SchemaFlow):
         id = dp.Field()
         name = dp.Field()
@@ -46,12 +49,7 @@ class LocalWriter(unittest.TestCase):
     class NestedSchema(dp.SchemaFlow):
         inner_schema = dp.DictOf(Schema)
 
-    iterable_input = CommonReader.expected_result
-    test_file_base = os.path.join(__dir__, 'output-{token}.fwt')
-
-    def setUp(self):
-        self.test_file_path = self.test_file_base.format(token=''.join([random.choice(string.ascii_uppercase) for i in range(6)]))
-        self.resource = io.open(self.test_file_path, 'w', encoding='utf-8')
+    ext = 'fwt'
 
     def test_add_header(self):
         self.writer = riwo.fwt.Writer(self.resource, self.iterable_input, Schema, add_header=True)
@@ -118,10 +116,3 @@ P0005 Ovális iroda     2 399 1        2015.09.20 07:31
         with self.assertRaises(riwo.exceptions.NestedSchemaNotSupported):
              riwo.fwt.Writer(self.resource, [], self.NestedSchema)
         self.content = u''
-
-    def tearDown(self):
-        self.resource.close()
-        with io.open(self.test_file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        self.assertEqual(self.content, content)
-        os.remove(self.test_file_path)
