@@ -6,4 +6,5 @@ from . import (
     xml,
     yaml,
     sqlalchemy,
+    excel
 )

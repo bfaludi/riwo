@@ -21,6 +21,7 @@ setup(
         'pip',
         'pyyaml',
         'requests',
+        'openpyxl'
     ],
     test_suite = "riwo.tests",
     url = 'http://bfaludi.com'
