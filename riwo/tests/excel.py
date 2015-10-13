@@ -16,6 +16,39 @@ from . import (
     __remote__
 )
 
+class ExcelReader(CommonReader):
+    expected_result = [{
+      u'quantity': 1,
+      u'name': u'đói',
+      u'updated_at': u'2015.09.20 20:00',
+      u'price': u'449',
+      u'id': u'P0001'
+    }, {
+      u'quantity': 1,
+      u'name': u'배고픈',
+      u'updated_at': u'2015.09.20 20:02',
+      u'price': u'399',
+      u'id': u'P0002'
+    }, {
+      u'quantity': 10,
+      u'name': u'голодный',
+      u'updated_at': u'',
+      u'price': u'199',
+      u'id': u'P0003'
+    }, {
+      u'quantity': 1,
+      u'name': u'Űrállomás krízis',
+      u'updated_at': u'2015.09.20 12:47',
+      u'price': u'999.5',
+      u'id': u'P0004'
+    }, {
+      u'quantity': 1,
+      u'name': u'Ovális iroda',
+      u'updated_at': u'2015.09.20 07:31',
+      u'price': u'2 399',
+      u'id': u'P0005'
+    }]
+
 class IndexSchema(dp.SchemaFlow):
     id = dp.Field(0)
     name = dp.Field(1, type=unicode, transforms=unicode.strip)
@@ -30,17 +63,17 @@ class HeaderedSchema(dp.SchemaFlow):
     quantity = dp.Field(type=long)
     updated_at = dp.Field()
 
-class LocalReader(CommonReader, unittest.TestCase):
+class LocalReader(ExcelReader, unittest.TestCase):
     def setUp(self):
         self.resource = io.open(os.path.join(__dir__, 'test.xlsx'), 'rb')
         self.reader = riwo.excel.Reader(self.resource, IndexSchema, sheet='Sheet1')
 
-class RequestsReader(CommonReader, unittest.TestCase):
+class RequestsReader(ExcelReader, unittest.TestCase):
     def setUp(self):
         self.resource = requests.get(os.path.join(__remote__, 'test.xlsx'))
         self.reader = riwo.excel.Reader(self.resource, IndexSchema, sheet='Sheet1')
 
-class UrllibReader(CommonReader, unittest.TestCase):
+class UrllibReader(ExcelReader, unittest.TestCase):
     def setUp(self):
         self.resource = urlopen(os.path.join(__remote__, 'test.xlsx'))
         self.reader = riwo.excel.Reader(self.resource, IndexSchema, sheet='Sheet1')

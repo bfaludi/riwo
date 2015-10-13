@@ -6,6 +6,7 @@ from .. import (
     Writer as AbstractWriter,
     exceptions
 )
+from io import BytesIO
 from ..utils import *
 from ..compat import *
 from openpyxl import load_workbook
@@ -22,7 +23,13 @@ class Reader(AbstractReader):
         return daprot.mapper.NAME
 
     def get_iterable_data(self):
-        wb = load_workbook(self.resource, guess_types=False, data_only=True, read_only=False)
+        wb = load_workbook(
+            filename=BytesIO(encode(get_content(self.resource), self.encoding)),
+            use_iterators= True,
+            guess_types=False,
+            data_only=True,
+            read_only=True
+        )
         ws = wb[self.sheet] if self.sheet else wb.active
 
         result_gen = ([unicode(c.value or u'') for c in r] for r in ws.rows)
