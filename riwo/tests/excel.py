@@ -3,20 +3,23 @@
 from __future__ import absolute_import
 import os
 import io
+from openpyxl import load_workbook
 import riwo
 import daprot as dp
 import datetime
 import unittest
-import requests
+import string
+import random
 from riwo.compat import *
+from riwo.utils import *
 from . import (
-    CommonReader, 
-    CommonWriter, 
+    CommonReader as AbstractCommonReader,
+    CommonWriter as AbstractCommonWrite,
     __dir__, 
     __remote__
 )
 
-class ExcelReader(CommonReader):
+class CommonReader(AbstractCommonReader):
     expected_result = [{
       u'quantity': 1,
       u'name': u'đói',
@@ -49,6 +52,24 @@ class ExcelReader(CommonReader):
       u'id': u'P0005'
     }]
 
+class CommonWriter(AbstractCommonWrite, unittest.TestCase):
+
+    def setUp(self):
+        self.test_file_path = self.test_file_base \
+            .format(ext=self.ext, token=''.join([random.choice(string.ascii_uppercase) for i in range(6)]))
+        self.resource = self.test_file_path
+
+    def tearDown(self):
+        if not self.create_file:
+            self.assertFalse(os.path.isfile(self.test_file_path))
+            return
+
+        worksheet = load_workbook(self.test_file_path).active
+        content = [[unicode(c.value or u'') for c in r] for r in worksheet.rows]
+        self.assertEqual(self.content, content)
+        os.remove(self.test_file_path)
+
+
 class IndexSchema(dp.SchemaFlow):
     id = dp.Field(0)
     name = dp.Field(1, type=unicode, transforms=unicode.strip)
@@ -63,17 +84,17 @@ class HeaderedSchema(dp.SchemaFlow):
     quantity = dp.Field(type=long)
     updated_at = dp.Field()
 
-class LocalReader(ExcelReader, unittest.TestCase):
+class LocalReader(CommonReader, unittest.TestCase):
     def setUp(self):
         self.resource = io.open(os.path.join(__dir__, 'test.xlsx'), 'rb')
         self.reader = riwo.excel.Reader(self.resource, IndexSchema, sheet='Sheet1')
 
-class RequestsReader(ExcelReader, unittest.TestCase):
+class RequestsReader(CommonReader, unittest.TestCase):
     def setUp(self):
         self.resource = requests.get(os.path.join(__remote__, 'test.xlsx'))
         self.reader = riwo.excel.Reader(self.resource, IndexSchema, sheet='Sheet1')
 
-class UrllibReader(ExcelReader, unittest.TestCase):
+class UrllibReader(CommonReader, unittest.TestCase):
     def setUp(self):
         self.resource = urlopen(os.path.join(__remote__, 'test.xlsx'))
         self.reader = riwo.excel.Reader(self.resource, IndexSchema, sheet='Sheet1')
@@ -94,57 +115,63 @@ class LocalWriter(CommonWriter, unittest.TestCase):
     def test_add_header(self):
         self.writer = riwo.excel.Writer(self.resource, self.iterable_input, self.Schema, add_header=True)
         self.writer.write()
-        self.content = u'''\
-id,name,price,quantity,updated_at
-P0001,đói,449,1,2015.09.20 20:00
-P0002,배고픈,399,1,2015.09.20 20:02
-P0003,голодный,199,10,
-P0004,Űrállomás krízis,"999,5",1,2015.09.20 12:47
-P0005,Ovális iroda,2 399,1,2015.09.20 07:31
-'''
+        self.create_file = True
+        self.content = [
+            [u'id', u'name', u'price', u'quantity', u'updated_at'],
+            [u'P0001', u'đói', u'449', u'1', u'2015.09.20 20:00'],
+            [u'P0002', u'배고픈', u'399', u'1', u'2015.09.20 20:02'],
+            [u'P0003', u'голодный', u'199', u'10', u''],
+            [u'P0004', u'Űrállomás krízis', u'999,5', u'1', u'2015.09.20 12:47'],
+            [u'P0005', u'Ovális iroda', u'2 399', u'1', u'2015.09.20 07:31'],
+        ]
 
     def test_not_add_header(self):
         self.writer = riwo.excel.Writer(self.resource, self.iterable_input, self.Schema, add_header=False)
         self.writer.write()
-        self.content = u'''\
-P0001,đói,449,1,2015.09.20 20:00
-P0002,배고픈,399,1,2015.09.20 20:02
-P0003,голодный,199,10,
-P0004,Űrállomás krízis,"999,5",1,2015.09.20 12:47
-P0005,Ovális iroda,2 399,1,2015.09.20 07:31
-'''
+        self.create_file = True
+        self.content = [
+            [u'P0001', u'đói', u'449', u'1', u'2015.09.20 20:00'],
+            [u'P0002', u'배고픈', u'399', u'1', u'2015.09.20 20:02'],
+            [u'P0003', u'голодный', u'199', u'10', u''],
+            [u'P0004', u'Űrállomás krízis', u'999,5', u'1', u'2015.09.20 12:47'],
+            [u'P0005', u'Ovális iroda', u'2 399', u'1', u'2015.09.20 07:31'],
+        ]
 
     def test_defined_schema_writer(self):
         self.writer = riwo.excel.Writer(self.resource, self.iterable_input, self.Schema)
         self.writer.write()
-        self.content = u'''\
-id,name,price,quantity,updated_at
-P0001,đói,449,1,2015.09.20 20:00
-P0002,배고픈,399,1,2015.09.20 20:02
-P0003,голодный,199,10,
-P0004,Űrállomás krízis,"999,5",1,2015.09.20 12:47
-P0005,Ovális iroda,2 399,1,2015.09.20 07:31
-'''
+        self.create_file = True
+        self.content = [
+            [u'id', u'name', u'price', u'quantity', u'updated_at'],
+            [u'P0001', u'đói', u'449', u'1', u'2015.09.20 20:00'],
+            [u'P0002', u'배고픈', u'399', u'1', u'2015.09.20 20:02'],
+            [u'P0003', u'голодный', u'199', u'10', u''],
+            [u'P0004', u'Űrállomás krízis', u'999,5', u'1', u'2015.09.20 12:47'],
+            [u'P0005', u'Ovális iroda', u'2 399', u'1', u'2015.09.20 07:31'],
+        ]
 
     def test_schema_flow_writer(self):
         self.writer = riwo.excel.Writer(self.resource, self.Schema(self.iterable_input, mapper=dp.mapper.NAME))
         self.writer.write()
-        self.content = u'''\
-id,name,price,quantity,updated_at
-P0001,đói,449,1,2015.09.20 20:00
-P0002,배고픈,399,1,2015.09.20 20:02
-P0003,голодный,199,10,
-P0004,Űrállomás krízis,"999,5",1,2015.09.20 12:47
-P0005,Ovális iroda,2 399,1,2015.09.20 07:31
-'''
+        self.create_file = True
+        self.content = [
+            [u'id', u'name', u'price', u'quantity', u'updated_at'],
+            [u'P0001', u'đói', u'449', u'1', u'2015.09.20 20:00'],
+            [u'P0002', u'배고픈', u'399', u'1', u'2015.09.20 20:02'],
+            [u'P0003', u'голодный', u'199', u'10', u''],
+            [u'P0004', u'Űrállomás krízis', u'999,5', u'1', u'2015.09.20 12:47'],
+            [u'P0005', u'Ovális iroda', u'2 399', u'1', u'2015.09.20 07:31'],
+        ]
 
     def test_without_schema(self):
         with self.assertRaises(riwo.exceptions.SchemaRequired):
             riwo.excel.Writer(self.resource, self.iterable_input)
+        self.create_file = False
         self.content = u''
 
     def test_unmarshal(self):
         self.writer = riwo.excel.Writer(self.resource, [], self.Schema)
+        self.create_file = False
         self.content = u''
 
         current_datetime = datetime.datetime.now()
@@ -155,4 +182,5 @@ P0005,Ovális iroda,2 399,1,2015.09.20 07:31
     def test_requisites(self):
         with self.assertRaises(riwo.exceptions.NestedSchemaNotSupported):
              riwo.excel.Writer(self.resource, [], self.NestedSchema)
+        self.create_file = False
         self.content = u''
