@@ -16,7 +16,6 @@ class Reader(AbstractReader):
     def __init__(self, resource, schema, offset=0, limit=None, sheet_name=None, merge_sheets=False, has_header=False, **fmtparams):
         self.fmtparams = fmtparams
         self.sheet_name = sheet_name
-        # TODO merge functionality
         self.merge_sheets = merge_sheets
         self.has_header = has_header
         super(Reader, self).__init__(resource, schema, offset, limit)
